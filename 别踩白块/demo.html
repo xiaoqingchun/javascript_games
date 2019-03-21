@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>别踩白块</title>
+	<style type="text/css">
+		body{
+			margin: 0px;
+			padding: 0px;
+		}
+		h1{
+			text-align: center;
+		}
+		#score{
+			color: red;
+		}
+		#main{
+			width: 400px;
+			height: 400px;
+			margin: 0 auto;
+			border: 2px solid green;
+			position: relative;
+			overflow:hidden;
+		}
+		#container{
+			width: 100%;
+			height: 400px;
+			background: #fff;
+			position: relative;
+			top: -100px;
+		}
+		.row{
+			width: 100%;
+			height: 100px;
+		}
+		.cell{
+			width: 100px;
+			height: 100px;
+			float: left;
+
+		}
+		.black{
+			background: black;
+		}
+	</style>
+</head>
+<body>
+	<h1 >当前得分:<span id="score">0</span>分</h1>
+	<div id="main">
+		<div id="container"></div>
+	</div>
+	<script type="text/javascript">
+		var state = 0; //0表示未开始，1表示进行中 2表示失败
+		var time = null; //定时器句柄
+		var speed = 5;  //游戏速度
+
+		/*创建页面*/
+		function init () {
+			for (var i = 0; i < 4; i++) {
+				crow();
+			}
+			$('main').onclick = function (event) {
+				judge(event);
+			}
+		}
+
+		/*输赢判断*/
+		function judge (event) {
+			if (state == 2) {
+				return ;
+			}
+			if(event.target.className.indexOf('black')==-1){
+				clearInterval(time);
+				state = 2;
+				alert("游戏结束");
+				return ;
+			}else{
+				event.target.className = "cell";
+				score();
+			}
+		}
+
+		/**
+		 * 创建div
+		 * @param  {[String]} className [类名]
+		 * @return {[String]}           [div]
+		 */
+		function cdiv(className) {
+			var div = document.createElement('div');
+			div.className = className;
+			return div;
+		}
+
+		function crow() {
+			var row = cdiv('row');
+			var classes=createSn();
+			var con = $('container');
+			for (var i = 0; i < 4; i++) {
+				row.appendChild(cdiv(classes[i]));
+			}
+			if (con.firstChild == null){
+				con.appendChild(row);
+			}else{
+				con.insertBefore(row,con.firstChild);
+			}
+		}
+
+		function drow () {
+			var con = $('container');
+			if (con.childNodes.length== 6) {
+				con.removeChild(con.lastChild);
+			}
+		}
+
+		function createSn () {
+			var arr = ['cell','cell','cell','cell'];
+			var index = Math.floor(Math.random()*4);
+			arr[index] = 'cell black';
+			return arr;
+		}
+
+		function start () {
+			time = setInterval('move()', 30);
+		}
+
+		/*动画*/
+		function move () {
+			var con = $('container');
+			var top = parseInt(window.getComputedStyle(con,null)['top']);
+			top+=speed;
+			con.style.top=top+'px';
+			if (top>=0){
+				crow();
+				con.style.top='-100px';
+				drow();
+			}else if (rows==(-100+speed)) {
+				var rows = con.childNodes;
+				if(rows.length ==5 && rows[rows.length-1].pass !==1){
+					clearInterval(time);
+					state = 2;
+					alert("游戏结束");
+				}
+			}
+		}
+
+		/*计分*/
+		function score () {
+			var newscore = parseInt($('score').innerHTML)+1;
+			$('score').innerHTML = newscore;
+		}
+
+		/*按id获取对象*/
+		function $(id){
+			return document.getElementById(id);
+		}
+
+		init();
+		start();
+	</script>
+</body>
+</html>
